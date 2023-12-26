@@ -1,58 +1,28 @@
-const initialState = [];
+import React from 'react';
+import PropTypes from 'prop-types';
+import Item from './Item';
 
-export const fetchRockets = (payload) => ({
-type: 'FETCH_ROCKETS',
-payload,
-});
-
-export const reserveRocket = (payload) => ({
-type: 'RESERVE_ROCKET',
-payload,
-});
-
-export const CancelReservation = (payload) => ({
-type: 'CANCEL_RESERVATION',
-payload,
-});
-
-export const fetchRocketsApi = () => async (dispatch) => {
-const rockets = await axios.get('https://api.spacexdata.com/v4/rockets');
-const mapRockets = Object.entries(rockets.data).map(([id, rocket]) => {
-    const { rocket_name, description, flickr_images } = rocket;
-    return {
-    id,
-    rocket_name,
-    description,
-    };
-});
-dispatch(fetchRockets(mapRockets));
+const Rockets = (props) => {
+const { rockets } = props;
+return (
+    <main
+    style={{
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: '100%',
+        margin: '2% 0 0 0',
+        padding: '1% 3% 0 3%',
+    }}
+    >
+    {rockets.map((rocket) => (
+        <Item rocket={rocket} key={rocket.id} />
+    ))}
+    </main>
+);
 };
 
-export const confirmReservation = (id) => (dispatch) => {
-dispatch(reserveRocket(id));
+Rockets.propTypes = {
+rockets: PropTypes.array.isRequired,
 };
 
-export const confirmCancelReservation = (id) => (dispatch) => {
-dispatch(CancelReservation(id));
-};
-
-const rocketReducer = (state = initialState, action) => {
-switch (action.type) {
-    case 'FETCH_ROCKETS':
-    return action.payload;
-    case 'RESERVE_ROCKET':
-    return state.map((rocket) => {
-        if (rocket.id !== action.payload.id) return rocket;
-        return { ...rocket, reserved: true };
-    });
-    case 'CANCEL_RESERVATION':
-    return state.map((rocket) => {
-        if (rocket.id !== action.payload.id) return rocket;
-        return { ...rocket, reserved: false };
-    });
-    default:
-    return state;
-}
-};
-
-export default rocketReducer;
+export default Rockets;

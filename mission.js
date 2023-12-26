@@ -1,61 +1,31 @@
-import axios from 'axios';
+import React from 'react';
+import PropTypes from 'prop-types';
+import MissionItem from './missionItem';
 
-const initialState = [];
+const Missions = (props) => {
+const { missions } = props;
+return (
+    <table className="table table-box">
+    <thead>
+        <tr className="table-box white">
+        <th className="table-box thwidth">Mission</th>
+        <th className="table-box th-two">Description</th>
+        <th className="table-box th-three">Status</th>
+        <th className="table-box th-four" aria-label="Mute volume" />
+        </tr>
+    </thead>
+    <tbody>
+        {missions.map((mission) => (
+        <MissionItem mission={mission} key={mission.id} />
+        ))}
 
-export const fetchMissions = (payload) => ({
-type: 'FETCH_MISSIONS',
-payload,
-});
-
-export const joinMission = (payload) => ({
-type: 'JOIN_MISSION',
-payload,
-});
-
-export const confirmMission = (id) => (dispatch) => {
-dispatch(joinMission(id));
+    </tbody>
+    </table>
+);
 };
 
-export const leaveMission = (payload) => ({
-type: 'LEAVE_MISSION',
-payload,
-});
-
-export const fetchMissionsApi = () => async (dispatch) => {
-const missions = await axios.get('https://api.spacexdata.com/v3/missions');
-const mapMissions = Object.entries(missions.data).map(([id, mission]) => {
-    const { mission_name, description } = mission;
-    return {
-    id,
-    mission_name,
-    description,
-    };
-});
-dispatch(fetchMissions(mapMissions));
+Missions.propTypes = {
+missions: PropTypes.array.isRequired,
 };
 
-export const confirmLeaveMission = (id) => (dispatch) => {
-dispatch(leaveMission(id));
-};
-
-const missionsReducer = (state = initialState, action) => {
-switch (action.type) {
-    case 'FETCH_MISSIONS':
-    return action.payload;
-    case 'JOIN_MISSION':
-    return state.map((mission) => {
-        if (mission.id !== action.payload.id) return mission;
-        return { ...mission, reserved: true };
-    });
-    case 'LEAVE_MISSION':
-    return state.map((mission) => {
-        if (mission.id !== action.payload.id) return mission;
-        return { ...mission, reserved: false };
-    });
-    default:
-    return state;
-}
-};
-
-export default missionsReducer;
-
+export default Missions;
